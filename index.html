@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla Dinámica de Países con Persistencia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+        table th, table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+        table th {
+            background-color: #007bff;
+            color: white;
+        }
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        table tr:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <table id="countriesTable">
+        <thead>
+            <tr>
+                <th>País</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>España</td>
+                <td data-value="0">0</td>
+            </tr>
+            <tr>
+                <td>Perú</td>
+                <td data-value="0">0</td>
+            </tr>
+            <tr>
+                <td>Francia</td>
+                <td data-value="0">0</td>
+            </tr>
+            <tr>
+                <td>Argentina</td>
+                <td data-value="0">0</td>
+            </tr>
+            <tr>
+                <td>Rusia</td>
+                <td data-value="0">0</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        const countriesTable = document.getElementById('countriesTable').getElementsByTagName('tbody')[0];
+        const countries = [
+            { name: 'España', id: 'spain', value: 0 },
+            { name: 'Perú', id: 'peru', value: 0 },
+            { name: 'Francia', id: 'france', value: 0 },
+            { name: 'Argentina', id: 'argentina', value: 0 },
+            { name: 'Rusia', id: 'russia', value: 0 }
+        ];
+
+        // Cargar valores desde LocalStorage
+        function loadFromLocalStorage() {
+            countries.forEach(country => {
+                const savedValue = localStorage.getItem(country.id);
+                if (savedValue !== null) {
+                    country.value = parseInt(savedValue, 10);
+                }
+            });
+        }
+
+        // Guardar valores en LocalStorage
+        function saveToLocalStorage() {
+            countries.forEach(country => {
+                localStorage.setItem(country.id, country.value);
+            });
+        }
+
+        // Actualizar la tabla con los valores actuales
+        function updateTable() {
+            countries.forEach(country => {
+                const row = [...countriesTable.rows].find(row => row.cells[0].innerText === country.name);
+                if (row) {
+                    row.cells[1].setAttribute('data-value', country.value);
+                    row.cells[1].innerText = country.value;
+                }
+            });
+        }
+
+        // Función que aumenta aleatoriamente el valor de un contador
+        function randomIncrease(country) {
+            const increase = Math.floor(Math.random() * 10); // Aumento aleatorio entre 0 y 9
+            country.value += increase;
+        }
+
+        // Función que ordena la tabla
+        function sortTable() {
+            const rows = Array.from(countriesTable.rows);
+            rows.sort((a, b) => {
+                const valueA = parseInt(a.cells[1].getAttribute('data-value'));
+                const valueB = parseInt(b.cells[1].getAttribute('data-value'));
+                return valueB - valueA;
+            });
+
+            // Reinsertamos las filas en el orden correcto
+            rows.forEach(row => countriesTable.appendChild(row));
+        }
+
+        // Inicialización
+        loadFromLocalStorage();
+        updateTable();
+        sortTable();
+
+        // Configuración para actualizar y ordenar cada 500ms
+        setInterval(() => {
+            countries.forEach(randomIncrease);
+            updateTable();
+            sortTable();
+            saveToLocalStorage();
+        }, 500);
+    </script>
+
+</body>
+</html>
